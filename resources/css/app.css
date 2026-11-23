@@ -1,0 +1,225 @@
+@import 'tailwindcss';
+
+@source '../../app/Livewire/**/*.php';
+@source '../../resources/views/**/*.blade.php';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+@layer base {
+    body {
+        background-color: #060a13;
+        background-image:
+            radial-gradient(60rem 40rem at 15% -10%, rgb(56 189 248 / 0.12), transparent 60%),
+            radial-gradient(50rem 35rem at 90% 0%, rgb(168 85 247 / 0.12), transparent 55%),
+            radial-gradient(45rem 30rem at 50% 110%, rgb(16 185 129 / 0.08), transparent 60%);
+        background-attachment: fixed;
+    }
+}
+
+@layer components {
+    .game-panel {
+        border: 1px solid rgb(148 163 184 / 0.16);
+        background: linear-gradient(180deg, rgb(17 25 42 / 0.92), rgb(9 14 26 / 0.96));
+        box-shadow:
+            0 30px 80px -20px rgb(0 0 0 / 0.9),
+            inset 0 1px 0 rgb(255 255 255 / 0.05);
+    }
+
+    .hud-led {
+        display: inline-flex;
+        min-width: 4.25rem;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.6rem;
+        border: 1px solid rgb(248 113 113 / 0.18);
+        background: radial-gradient(circle at 50% 0%, #1a0b0b, #05070d 70%);
+        padding: 0.35rem 0.65rem;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 1.35rem;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.12em;
+        color: #fb7185;
+        text-shadow: 0 0 12px rgb(251 113 133 / 0.65);
+        box-shadow: inset 0 0 14px rgb(0 0 0 / 0.9);
+    }
+
+    .mine-board {
+        --cell-size: 2.15rem;
+        --cell-gap: 3px;
+
+        display: grid;
+        grid-template-columns: repeat(var(--cols), var(--cell-size));
+        gap: var(--cell-gap);
+        width: max-content;
+        margin-inline: auto;
+        padding: 0.35rem;
+    }
+
+    .mine-board[data-level='expert'] {
+        --cell-size: 1.75rem;
+    }
+
+    /* Modo bandera: el tablero se tiñe de ámbar para que el cambio de modo
+       sea evidente antes de tocar una celda. */
+    .mine-board--flag .mine-cell--hidden {
+        box-shadow:
+            inset 0 0 0 1px rgb(251 191 36 / 0.35),
+            inset 0 1px 0 rgb(255 255 255 / 0.12),
+            0 2px 3px rgb(0 0 0 / 0.35);
+    }
+
+    .mine-board--flag .mine-cell--hidden:hover {
+        background: linear-gradient(150deg, #5b4517, #33270e 60%, #1f1808);
+    }
+
+    .mine-cell {
+        position: relative;
+        display: grid;
+        width: var(--cell-size);
+        height: var(--cell-size);
+        place-items: center;
+        border: 0;
+        border-radius: 0.3rem;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: calc(var(--cell-size) * 0.52);
+        font-weight: 800;
+        line-height: 1;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        touch-action: manipulation;
+        transition:
+            transform 80ms ease,
+            background-color 120ms ease,
+            box-shadow 120ms ease;
+    }
+
+    .mine-cell--hidden {
+        cursor: pointer;
+        background: linear-gradient(150deg, #3b4a63, #1b2537 60%, #131a29);
+        box-shadow:
+            inset 0 1px 0 rgb(255 255 255 / 0.16),
+            inset 0 -2px 0 rgb(0 0 0 / 0.45),
+            0 2px 3px rgb(0 0 0 / 0.35);
+    }
+
+    .mine-cell--hidden:hover {
+        background: linear-gradient(150deg, #4f6384, #26334a 60%, #182134);
+        transform: translateY(-1px);
+    }
+
+    .mine-cell--hidden:active {
+        transform: translateY(0);
+        box-shadow: inset 0 2px 6px rgb(0 0 0 / 0.55);
+    }
+
+    .mine-cell--revealed {
+        cursor: default;
+        background: #0c1424;
+        box-shadow: inset 0 0 0 1px rgb(148 163 184 / 0.14);
+    }
+
+    .mine-cell--flagged {
+        cursor: pointer;
+        background: linear-gradient(150deg, #4a3a16, #2a210d);
+        box-shadow:
+            inset 0 0 0 1px rgb(251 191 36 / 0.35),
+            0 0 12px rgb(251 191 36 / 0.12);
+    }
+
+    .mine-cell--mine {
+        cursor: default;
+        background: radial-gradient(circle, #7f1d1d, #450a0a);
+        box-shadow: inset 0 0 0 1px rgb(248 113 113 / 0.5);
+    }
+
+    .mine-cell--exploded {
+        cursor: default;
+        background: radial-gradient(circle, #f87171, #b91c1c);
+        box-shadow: 0 0 22px rgb(239 68 68 / 0.8);
+        animation: cell-boom 420ms ease;
+    }
+
+    .mine-cell--wrong {
+        cursor: default;
+        background: linear-gradient(150deg, #4c1d95, #2e1065);
+        box-shadow: inset 0 0 0 1px rgb(196 181 253 / 0.35);
+    }
+
+    .mine-cell[data-n='1'] { color: #60a5fa; }
+    .mine-cell[data-n='2'] { color: #34d399; }
+    .mine-cell[data-n='3'] { color: #fb7185; }
+    .mine-cell[data-n='4'] { color: #a78bfa; }
+    .mine-cell[data-n='5'] { color: #fbbf24; }
+    .mine-cell[data-n='6'] { color: #22d3ee; }
+    .mine-cell[data-n='7'] { color: #f472b6; }
+    .mine-cell[data-n='8'] { color: #cbd5e1; }
+
+    .smiley-button {
+        display: grid;
+        width: 3rem;
+        height: 3rem;
+        place-items: center;
+        border-radius: 0.85rem;
+        border: 1px solid rgb(251 191 36 / 0.35);
+        background: linear-gradient(180deg, #fbbf24, #d97706);
+        font-size: 1.6rem;
+        line-height: 1;
+        box-shadow:
+            0 6px 18px -4px rgb(245 158 11 / 0.5),
+            inset 0 1px 0 rgb(255 255 255 / 0.5);
+        transition: transform 100ms ease, filter 120ms ease;
+    }
+
+    .smiley-button:hover {
+        filter: brightness(1.08);
+        transform: translateY(-1px) scale(1.03);
+    }
+
+    .smiley-button:active {
+        transform: translateY(0) scale(0.97);
+    }
+
+    .difficulty-tab {
+        border-radius: 0.55rem;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        color: rgb(148 163 184);
+        transition: background-color 120ms ease, color 120ms ease;
+    }
+
+    .difficulty-tab:hover {
+        background: rgb(255 255 255 / 0.06);
+        color: #e2e8f0;
+    }
+
+    .difficulty-tab--active {
+        background: rgb(56 189 248 / 0.14);
+        color: #7dd3fc;
+        box-shadow: inset 0 0 0 1px rgb(56 189 248 / 0.35);
+    }
+}
+
+@media (max-width: 640px) {
+    .mine-board {
+        --cell-size: 1.9rem;
+    }
+
+    .mine-board[data-level='expert'] {
+        --cell-size: 1.35rem;
+    }
+}
+
+@keyframes cell-boom {
+    0% { transform: scale(0.8); filter: brightness(2); }
+    60% { transform: scale(1.12); }
+    100% { transform: scale(1); filter: brightness(1); }
+}
