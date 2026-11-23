@@ -1,5 +1,7 @@
 # 💣 Buscaminas — Laravel 13 · Livewire 4 · PHP 8.5
 
+[![Tests](https://github.com/jerfarias-dev/minesweeper-laravel/actions/workflows/tests.yml/badge.svg)](https://github.com/jerfarias-dev/minesweeper-laravel/actions/workflows/tests.yml)
+
 Réplica funcional del clásico Buscaminas con lógica **100 % validada en el servidor**.
 El navegador solo recibe celdas saneadas: inspeccionar el DOM o el payload de Livewire
 nunca revela dónde están las minas.
